@@ -1,4 +1,5 @@
 ﻿@inject HttpClient httpClient;
+@inject IConfiguration Configuration
 
 @page "/read"
 
@@ -40,24 +41,13 @@
 </div>
 
 @code {
-  public List<Student> Students { get; set; } = new();
+  public List<StudentDTO>? Students { get; set; }
 
   protected override async Task OnInitializedAsync()
   {
-    var systemUtveckling = new Course() { Name = "System Utveckling.NEt", Id = 30 };
+    var response = await httpClient.GetAsync($"{Configuration["ApiBaseUrl"]}/students");
+    response.EnsureSuccessStatusCode();
 
-    Students = new() {
-new Student{
-Name = "Emil Uppenberg",
-Age = 30,
-Course = systemUtveckling
-},
-new Student{
-Name = "Ada Reso",Age=29,Course=systemUtveckling
-},
-new Student{
-Name = "Abc 123", Age=2,Course=systemUtveckling
-}
-};
+    Students = await response.Content.ReadFromJsonAsync<List<StudentDTO>>();
   }
 }
